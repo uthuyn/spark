@@ -11,6 +11,7 @@ using Spark.Engine.Extensions;
 using Spark.Engine.FhirResponseFactory;
 using Spark.Engine.Service.FhirServiceExtensions;
 using Spark.Engine.Storage;
+using Spark.Engine.Terminology;
 using Spark.Service;
 
 namespace Spark.Engine.Service
@@ -412,6 +413,48 @@ namespace Spark.Engine.Service
              .Add(entry);
             serviceListener.Inform(entry);
             return result;
+        }
+        
+        public FhirResponse ValidateCode(Parameters parameters, string typeName, string id = null, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.ValidateCode(parameters, typeName, id, useGet));
+        }
+
+        public FhirResponse Expand(Parameters parameters, string id = null, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.Expand(parameters, id, useGet));
+        }
+
+        public FhirResponse Lookup(Parameters parameters, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.Lookup(parameters, useGet));
+        }
+
+        public FhirResponse Translate(Parameters parameters, string id = null, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.Translate(parameters, id, useGet));
+        }
+
+        public FhirResponse Subsumes(Parameters parameters, string id = null, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.Subsumes(parameters, id, useGet));
+        }
+
+        public FhirResponse Closure(Parameters parameters, bool useGet = false)
+        {
+            ITerminologyService feature = GetFeature<ITerminologyService>();
+
+            return Respond.WithResource(feature.Closure(parameters, useGet));
         }
     }
 }

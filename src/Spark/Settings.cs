@@ -79,6 +79,15 @@ namespace Spark
             }
         }
 
+        public static Uri TerminologyServerEndpoint
+        {
+            get
+            {
+                string endpoint = GetRequiredKey("TerminologyServerEndpoint");
+                return new Uri(endpoint, UriKind.Absolute);
+            }
+        }
+
         public static string AuthorUri
         {
             get

@@ -14,6 +14,8 @@ using System.Web.Http.Cors;
 using Hl7.Fhir.Rest;
 using Spark.Core;
 using Spark.Infrastructure;
+using System.Net.Http;
+using Hl7.Fhir.Utility;
 
 namespace Spark.Controllers
 {
@@ -128,6 +130,64 @@ namespace Spark.Controllers
             return _fhirService.ValidateOperation(key, resource);
         }
 
+        // ============= ValueSet operations
+        [HttpGet, Route("ValueSet/${operation}")]
+        public FhirResponse ValueSetOperation(string operation)
+        {
+            return ValueSetOperation(operation, Request.GetSearchParams().ToParameters());
+        }
+        [HttpPost, Route("ValueSet/${operation}")]
+        public FhirResponse ValueSetOperation(string operation, Parameters parameters)
+        {
+            switch (operation.ToLower())
+            {
+                case RestOperation.EXPAND_VALUESET:
+                    return _fhirService.Expand(parameters, useGet: Request.Method == HttpMethod.Get);
+                case RestOperation.VALIDATE_CODE:
+                    return _fhirService.ValidateCode(parameters, FHIRAllTypes.ValueSet.GetLiteral(), useGet: Request.Method == HttpMethod.Get);
+                default:
+                    return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
+            }
+        }
+
+        // ============= CodeSystem operations
+        [HttpGet, Route("CodeSystem/${operation}")]
+        public FhirResponse CodeSystemOperation(string operation)
+        {
+            return CodeSystemOperation(operation, Request.GetSearchParams()?.ToParameters());
+        }
+        [HttpPost, Route("CodeSystem/${operation}")]
+        public FhirResponse CodeSystemOperation(string operation, Parameters parameters)
+        {
+            switch (operation.ToLower())
+            {
+                case RestOperation.CONCEPT_LOOKUP:
+                    return _fhirService.Lookup(parameters, useGet: Request.Method == HttpMethod.Get);
+                case RestOperation.VALIDATE_CODE:
+                    return _fhirService.ValidateCode(parameters, FHIRAllTypes.CodeSystem.GetLiteral(), useGet: Request.Method == HttpMethod.Get);
+                default:
+                    return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
+            }
+        }
+
+        // ============= ConceptMap operations
+        [HttpGet, Route("ConceptMap/${operation}")]
+        public FhirResponse ConceptMapOperation(string operation)
+        {
+            return ConceptMapOperation(operation, Request.GetSearchParams()?.ToParameters());
+        }
+        [HttpPost, Route("ConceptMap/${operation}")]
+        public FhirResponse ConceptMapOperation(string operation, Parameters parameters)
+        {
+            switch (operation.ToLower())
+            {
+                case RestOperation.TRANSLATE:
+                    return _fhirService.Translate(parameters, useGet: Request.Method == HttpMethod.Get);
+                default:
+                    return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
+            }
+        }
+
         // ============= Type Level Interactions
 
         [HttpGet, Route("{type}")]
@@ -199,11 +259,18 @@ namespace Spark.Controllers
 
         // Operations
 
-        [HttpPost, Route("${operation}")]
+        [HttpGet, Route("${operation}")]
         public FhirResponse ServerOperation(string operation)
+        {
+            return ServerOperation(operation, Request.GetSearchParams()?.ToParameters());
+        }
+        [HttpPost, Route("${operation}")]
+        public FhirResponse ServerOperation(string operation, Parameters parameters)
         {
             switch (operation.ToLower())
             {
+                case "closure":
+                    return _fhirService.Closure(parameters, Request.Method == HttpMethod.Get);
                 case "error": throw new Exception("This error is for testing purposes");
                 default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
             }
@@ -243,64 +310,5 @@ namespace Spark.Controllers
             Key key = Key.Create("Composition", id);
             return _fhirService.Document(key);
         }
-
-        // ============= Tag Interactions
-
-        /*
-        [HttpGet, Route("_tags")]
-        public TagList AllTags()
-        {
-            return service.TagsFromServer();
-        }
-
-        [HttpGet, Route("{type}/_tags")]
-        public TagList ResourceTags(string type)
-        {
-            return service.TagsFromResource(type);
-        }
-
-        [HttpGet, Route("{type}/{id}/_tags")]
-        public TagList InstanceTags(string type, string id)
-        {
-            return service.TagsFromInstance(type, id);
-        }
-
-        [HttpGet, Route("{type}/{id}/_history/{vid}/_tags")]
-        public HttpResponseMessage HistoryTags(string type, string id, string vid)
-        {
-            TagList tags = service.TagsFromHistory(type, id, vid);
-            return Request.CreateResponse(HttpStatusCode.OK, tags);
-        }
-
-        [HttpPost, Route("{type}/{id}/_tags")]
-        public HttpResponseMessage AffixTag(string type, string id, TagList taglist)
-        {
-            service.AffixTags(type, id, taglist != null ? taglist.Category : null);
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [HttpPost, Route("{type}/{id}/_history/{vid}/_tags")]
-        public HttpResponseMessage AffixTag(string type, string id, string vid, TagList taglist)
-        {
-            service.AffixTags(type, id, vid, taglist != null ? taglist.Category : null);
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [HttpPost, Route("{type}/{id}/_tags/_delete")]
-        public HttpResponseMessage DeleteTags(string type, string id, TagList taglist)
-        {
-            service.RemoveTags(type, id, taglist != null ? taglist.Category : null);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
-        }
-
-        [HttpPost, Route("{type}/{id}/_history/{vid}/_tags/_delete")]
-        public HttpResponseMessage DeleteTags(string type, string id, string vid, TagList taglist)
-        {
-            service.RemoveTags(type, id, vid, taglist != null ? taglist.Category : null);
-            return Request.CreateResponse(HttpStatusCode.NoContent);
-        }
-        */
-
     }
-
 }

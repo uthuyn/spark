@@ -56,6 +56,9 @@
     <Reference Include="Hl7.Fhir.R4.Core, Version=1.2.0.0, Culture=neutral, PublicKeyToken=d706911480550fc3, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Hl7.Fhir.R4.1.2.0\lib\net45\Hl7.Fhir.R4.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Hl7.Fhir.R4.Specification, Version=1.2.0.0, Culture=neutral, PublicKeyToken=d706911480550fc3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Hl7.Fhir.Specification.R4.1.2.0\lib\net45\Hl7.Fhir.R4.Specification.dll</HintPath>
+    </Reference>
     <Reference Include="Hl7.Fhir.Serialization, Version=1.2.0.0, Culture=neutral, PublicKeyToken=d706911480550fc3, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Hl7.Fhir.Serialization.1.2.0\lib\net45\Hl7.Fhir.Serialization.dll</HintPath>
     </Reference>
@@ -335,6 +338,7 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
+    <None Include="Properties\PublishProfiles\spark-r4 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\Web Deploy Package for VM.pubxml" />
     <None Include="Properties\PublishProfiles\rekvirentvm.pubxml" />
     <Content Include="parameters.xml" />

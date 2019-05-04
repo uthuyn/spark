@@ -22,6 +22,8 @@ using Spark.Engine.Store.Interfaces;
 using Spark.Filters;
 using Spark.Mongo.Store;
 using Spark.Mongo.Store.Extensions;
+using Spark.Engine.Terminology;
+using Hl7.Fhir.Rest;
 
 namespace Spark
 {
@@ -84,10 +86,8 @@ namespace Spark
             container.RegisterType<InitializerHub>(new HierarchicalLifetimeManager());
             container.RegisterType<IHistoryStore, HistoryStore>(new InjectionConstructor(Settings.MongoUrl));
             container.RegisterType<IFhirService, FhirService>(new ContainerControlledLifetimeManager());
-                  //new InjectionFactory(unityContainer => unityContainer.Resolve<IFhirService>
-                  //(new DependencyOverride(typeof(IFhirServiceExtension[]), 
-                  //unityContainer.Resolve<IFhirExtensionsBuilder>().GetExtensions()))));
 
+            container.RegisterType<IFhirServiceExtension, ExternalTerminologyService>("terminologyService", new InjectionConstructor(new FhirClient(Settings.TerminologyServerEndpoint)));
             container.RegisterType<IServiceListener, SearchService>("searchListener");
             container.RegisterType<IFhirServiceExtension, SearchService>("search");
             container.RegisterType<ISearchService, SearchService>();

@@ -63,7 +63,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             var server = new CapabilityStatement.RestComponent();
             server.Mode = (isServer) ? CapabilityStatement.RestfulCapabilityMode.Server : CapabilityStatement.RestfulCapabilityMode.Client;
 
-            if (documentation != null)
+            if (documentation != null && !string.IsNullOrEmpty(documentation.Value))
             {
                 server.Documentation = documentation;
             }
@@ -150,7 +150,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                             {
                                 Name = sp.Name,
                                 Type = sp.Type,
-                                Documentation = sp.Description
+                                Documentation = sp.Description == null || string.IsNullOrEmpty(sp.Description.Value) ? null : sp.Description
                             });
 
             resourcecomp.SearchParam.AddRange(parameters);

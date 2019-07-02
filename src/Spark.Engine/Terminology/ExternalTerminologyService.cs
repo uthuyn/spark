@@ -32,20 +32,23 @@ namespace Spark.Engine.Terminology
             if (string.IsNullOrEmpty(id))
                 return Endpoint.TypeOperation(RestOperation.VALIDATE_CODE, typeName, parameters, useGet);
             else
-                return Endpoint.InstanceOperation(new Uri($"{typeName}/{id}"), RestOperation.VALIDATE_CODE, parameters, useGet);
+                return Endpoint.InstanceOperation(ResourceIdentity.Build(typeName, id), RestOperation.VALIDATE_CODE, parameters, useGet);
         }
 
         public Resource Expand(Parameters parameters, string id = null, bool useGet = false)
         {
             if (string.IsNullOrEmpty(id))
-                return Endpoint.TypeOperation(RestOperation.EXPAND_VALUESET, FHIRAllTypes.ValueSet.GetLiteral(), parameters, useGet);
+                return Endpoint.TypeOperation<ValueSet>(RestOperation.EXPAND_VALUESET, parameters, useGet);
             else
-                return Endpoint.InstanceOperation(new Uri($"{FHIRAllTypes.ValueSet.GetLiteral()}/{id}"), RestOperation.EXPAND_VALUESET, parameters, useGet);
+                return Endpoint.InstanceOperation(ResourceIdentity.Build(FHIRAllTypes.ValueSet.GetLiteral(), id), RestOperation.EXPAND_VALUESET, parameters, useGet);
         }
 
-        public Resource Lookup(Parameters parameters, bool useGet = false)
+        public Resource Lookup(Parameters parameters, string id = null, bool useGet = false)
         {
-            return Endpoint.TypeOperation<CodeSystem>(RestOperation.CONCEPT_LOOKUP, parameters, useGet);
+            if(string.IsNullOrEmpty(id))
+                return Endpoint.TypeOperation<CodeSystem>(RestOperation.CONCEPT_LOOKUP, parameters, useGet);
+            else
+                return Endpoint.InstanceOperation(ResourceIdentity.Build(FHIRAllTypes.CodeSystem.GetLiteral(), id), RestOperation.CONCEPT_LOOKUP, parameters, useGet);
         }
 
         public Resource Translate(Parameters parameters, string id = null, bool useGet = false)
@@ -53,7 +56,7 @@ namespace Spark.Engine.Terminology
             if (string.IsNullOrEmpty(id))
                 return Endpoint.TypeOperation(RestOperation.TRANSLATE, FHIRAllTypes.ConceptMap.GetLiteral(), parameters, useGet);
             else
-                return Endpoint.InstanceOperation(new Uri($"{FHIRAllTypes.ConceptMap.GetLiteral()}/{id}"), RestOperation.TRANSLATE, parameters, useGet);
+                return Endpoint.InstanceOperation(ResourceIdentity.Build(FHIRAllTypes.ConceptMap.GetLiteral(), id), RestOperation.TRANSLATE, parameters, useGet);
         }
 
         public Resource Subsumes(Parameters parameters, string id = null, bool useGet = false)
@@ -61,7 +64,7 @@ namespace Spark.Engine.Terminology
             if (string.IsNullOrEmpty(id))
                 return Endpoint.TypeOperation(RestOperationCustom.SUBSUMES, FHIRAllTypes.CodeSystem.GetLiteral(), parameters, useGet);
             else
-                return Endpoint.InstanceOperation(new Uri($"{FHIRAllTypes.CodeSystem.GetLiteral()}/{id}"), RestOperationCustom.SUBSUMES, parameters, useGet);
+                return Endpoint.InstanceOperation(ResourceIdentity.Build(FHIRAllTypes.CodeSystem.GetLiteral(), id), RestOperationCustom.SUBSUMES, parameters, useGet);
         }
 
         public Resource Closure(Parameters parameters, bool useGet = false)

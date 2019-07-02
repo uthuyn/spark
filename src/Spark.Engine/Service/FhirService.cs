@@ -429,11 +429,11 @@ namespace Spark.Engine.Service
             return Respond.WithResource(feature.Expand(parameters, id, useGet));
         }
 
-        public FhirResponse Lookup(Parameters parameters, bool useGet = false)
+        public FhirResponse Lookup(Parameters parameters, string id = null, bool useGet = false)
         {
             ITerminologyService feature = GetFeature<ITerminologyService>();
 
-            return Respond.WithResource(feature.Lookup(parameters, useGet));
+            return Respond.WithResource(feature.Lookup(parameters, id, useGet));
         }
 
         public FhirResponse Translate(Parameters parameters, string id = null, bool useGet = false)

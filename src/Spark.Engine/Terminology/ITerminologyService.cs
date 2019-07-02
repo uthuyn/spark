@@ -38,7 +38,7 @@ namespace Spark.Engine.Terminology
         /// <param name="parameters"></param>
         /// <param name="useGet"></param>
         /// <returns></returns>
-        Resource Lookup(Parameters parameters, bool useGet = false);
+        Resource Lookup(Parameters parameters, string id = null, bool useGet = false);
 
         /// <summary>
         /// 

@@ -150,6 +150,25 @@ namespace Spark.Controllers
             }
         }
 
+        [HttpGet, Route("ValueSet{id}/${operation}")]
+        public FhirResponse ValueSetOperation(string id, string operation)
+        {
+            return ValueSetOperation(id, operation, Request.GetSearchParams().ToParameters());
+        }
+        [HttpPost, Route("ValueSet/{id}/${operation}")]
+        public FhirResponse ValueSetOperation(string id, string operation, Parameters parameters)
+        {
+            switch (operation.ToLower())
+            {
+                case RestOperation.EXPAND_VALUESET:
+                    return _fhirService.Expand(parameters, id, useGet: Request.Method == HttpMethod.Get);
+                case RestOperation.VALIDATE_CODE:
+                    return _fhirService.ValidateCode(parameters, FHIRAllTypes.ValueSet.GetLiteral(), id, useGet: Request.Method == HttpMethod.Get);
+                default:
+                    return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
+            }
+        }
+
         // ============= CodeSystem operations
         [HttpGet, Route("CodeSystem/${operation}")]
         public FhirResponse CodeSystemOperation(string operation)
@@ -165,6 +184,25 @@ namespace Spark.Controllers
                     return _fhirService.Lookup(parameters, useGet: Request.Method == HttpMethod.Get);
                 case RestOperation.VALIDATE_CODE:
                     return _fhirService.ValidateCode(parameters, FHIRAllTypes.CodeSystem.GetLiteral(), useGet: Request.Method == HttpMethod.Get);
+                default:
+                    return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
+            }
+        }
+
+        [HttpGet, Route("CodeSystem/{id}/${operation}")]
+        public FhirResponse CodeSystemOperation(string id, string operation)
+        {
+            return CodeSystemOperation(id, operation, Request.GetSearchParams()?.ToParameters());
+        }
+        [HttpPost, Route("CodeSystem/{id}/${operation}")]
+        public FhirResponse CodeSystemOperation(string id, string operation, Parameters parameters)
+        {
+            switch (operation.ToLower())
+            {
+                case RestOperation.VALIDATE_CODE:
+                    return _fhirService.ValidateCode(parameters, FHIRAllTypes.CodeSystem.GetLiteral(), id, useGet: Request.Method == HttpMethod.Get);
+                case RestOperation.CONCEPT_LOOKUP:
+                    return _fhirService.Lookup(parameters, id, useGet: Request.Method == HttpMethod.Get);
                 default:
                     return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
             }

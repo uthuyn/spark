@@ -37,7 +37,7 @@ namespace Spark.Service
         FhirResponse Document(IKey key);
         FhirResponse ValidateCode(Parameters parameters, string typeName, string id = null, bool useGet = false);
         FhirResponse Expand(Parameters parameters, string id = null, bool useGet = false);
-        FhirResponse Lookup(Parameters parameters, bool useGet = false);
+        FhirResponse Lookup(Parameters parameters, string id = null, bool useGet = false);
         FhirResponse Translate(Parameters parameters, string id = null, bool useGet = false);
         FhirResponse Subsumes(Parameters parameters, string id = null, bool useGet = false);
         FhirResponse Closure(Parameters parameters, bool useGet = false);

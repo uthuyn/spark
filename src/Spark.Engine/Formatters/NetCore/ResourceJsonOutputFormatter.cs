@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Spark.Engine.Formatters
 {
-    public class ResourceJsonOutputFormatter : TextOutputFormatter
+    public class ResourceJsonOutputFormatter : FhirOutputFormatter
     {
         public ResourceJsonOutputFormatter()
         {
@@ -32,11 +32,13 @@ namespace Spark.Engine.Formatters
             return typeof(FhirModel.Resource).IsAssignableFrom(type) || typeof(FhirResponse).IsAssignableFrom(type);
         }
 
-        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (selectedEncoding == null) throw new ArgumentNullException(nameof(selectedEncoding));
             if (selectedEncoding != Encoding.UTF8) throw Error.BadRequest($"FHIR supports UTF-8 encoding exclusively, not {selectedEncoding.WebName}");
+
+            await base.WriteResponseBodyAsync(context, selectedEncoding);
 
             using (TextWriter writer = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding))
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
@@ -58,7 +60,6 @@ namespace Spark.Engine.Formatters
                         serializer.Serialize(context.Object as FhirModel.Resource, jsonWriter, summaryType);
                 }
             }
-            return Task.CompletedTask;
         }
     }
 }

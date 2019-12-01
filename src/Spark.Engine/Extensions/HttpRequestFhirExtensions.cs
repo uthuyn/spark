@@ -45,7 +45,34 @@ namespace Spark.Engine.Extensions
                 }
             }
         }
-        
+
+#if NETSTANDARD2_0
+        public static void AcquireHeaders(this HttpResponse response, FhirResponse fhirResponse)
+        {
+            if (fhirResponse.Key != null)
+            {
+                if (fhirResponse.Key.VersionId != null)
+                    response.Headers.Add("ETag", new StringValues(ETag.Create(fhirResponse.Key.VersionId).Tag));
+
+                Uri location = fhirResponse.Key.ToUri();
+                response.Headers.Add("Location", new StringValues(location.AbsoluteUri));
+
+                if (response.Body != null)
+                {
+                    response.Headers.Add("Content-Location", new StringValues(location.AbsoluteUri));
+                    if (fhirResponse.Resource != null && fhirResponse.Resource.Meta != null)
+                    {
+                        string lastModified = fhirResponse.Resource.Meta.LastUpdated.HasValue
+                            ? fhirResponse.Resource.Meta.LastUpdated.Value.ToString("u").Replace(' ', 'T')
+                            : null;
+                        if(lastModified != null)
+                            response.Headers.Add("Last-Modified", new StringValues(lastModified));
+                    }
+                }
+            }
+        }
+#endif
+
         private static HttpResponseMessage CreateBareFhirResponse(this HttpRequestMessage request, FhirResponse fhir)
         {
             bool includebody = request.PreferRepresentation();

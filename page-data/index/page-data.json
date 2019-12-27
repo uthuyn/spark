@@ -1,1 +1,1 @@
-{"componentChunkName":"component---src-pages-index-md","path":"/","webpackCompilationHash":"47dbf23188c80c644232","result":{"pageContext":{"isCreatedByStatefulCreatePages":true,"frontmatter":{"name":"Spark FHIR server","route":"/"}}}}
+{"componentChunkName":"component---src-pages-index-md","path":"/","result":{"pageContext":{"frontmatter":{"name":"Spark FHIR server","route":"/"}}}}

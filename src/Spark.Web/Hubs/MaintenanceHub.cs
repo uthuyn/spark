@@ -1,7 +1,6 @@
 using Hl7.Fhir.Model;
 using Spark.Core;
 using Spark.Engine.Core;
-using Spark.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +12,7 @@ using Spark.Web.Utilities;
 using System.IO;
 using Tasks = System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Spark.Engine.Service;
 using Spark.Engine.Service.FhirServiceExtensions;
 
 namespace Spark.Web.Hubs
@@ -22,7 +22,7 @@ namespace Spark.Web.Hubs
     {
         private List<Resource> _resources = null;
 
-        private IFhirService _fhirService;
+        private IAsyncFhirService _fhirService;
         private ILocalhost _localhost;
         private IFhirStoreAdministration _fhirStoreAdministration;
         private IFhirIndex _fhirIndex;
@@ -34,7 +34,7 @@ namespace Spark.Web.Hubs
         private int _resourceCount;
 
         public MaintenanceHub(
-            IFhirService fhirService,
+            IAsyncFhirService fhirService,
             ILocalhost localhost,
             IFhirStoreAdministration fhirStoreAdministration,
             IFhirIndex fhirIndex,
@@ -90,8 +90,8 @@ namespace Spark.Web.Hubs
             try
             {
                 await notifier.SendProgressUpdate(0, "Clearing the database...");
-                _fhirStoreAdministration.Clean();
-                _fhirIndex.Clean();
+                await _fhirStoreAdministration.CleanAsync().ConfigureAwait(false);
+                await _fhirIndex.CleanAsync().ConfigureAwait(false);
                 await notifier.SendProgressUpdate(100, "Database cleared");
             }
             catch (Exception e)
@@ -118,7 +118,7 @@ namespace Spark.Web.Hubs
             }
         }
 
-        public async void LoadExamplesToStore()
+        public async Tasks.Task LoadExamplesToStore()
         {
             var messages = new StringBuilder();
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
@@ -134,7 +134,7 @@ namespace Spark.Web.Hubs
                 {
                     var res = resarray[x];
                     // Sending message:
-                    var msg = Message("Importing " + res.ResourceType.ToString() + " " + res.Id + "...", x);
+                    var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
                     await notifier.SendProgressUpdate(msg.Progress, msg.Message);
 
                     try
@@ -143,17 +143,17 @@ namespace Spark.Web.Hubs
 
                         if (res.Id != null && res.Id != "")
                         {
-                            _fhirService.Put(key, res);
+                            await _fhirService.PutAsync(key, res).ConfigureAwait(false);
                         }
                         else
                         {
-                            _fhirService.Create(key, res);
+                            await _fhirService.CreateAsync(key, res).ConfigureAwait(false);
                         }
                     }
                     catch (Exception e)
                     {
                         // Sending message:
-                        var msgError = Message("ERROR Importing " + res.ResourceType.ToString() + " " + res.Id + "... ", x);
+                        var msgError = Message("ERROR Importing " + res.TypeName + " " + res.Id + "... ", x);
                         await Clients.All.SendAsync("Error", msg);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }

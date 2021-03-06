@@ -20,10 +20,12 @@ namespace Spark.Engine.Search
     {
         private SparkEngineEventSource _log = SparkEngineEventSource.Log;
         private IFhirModel _fhirModel;
+        private readonly IReferenceNormalizationService _referenceNormalizationService;
 
-        public ElementIndexer(IFhirModel fhirModel)
+        public ElementIndexer(IFhirModel fhirModel, IReferenceNormalizationService referenceNormalizationService = null)
         {
             _fhirModel = fhirModel;
+            _referenceNormalizationService = referenceNormalizationService;
         }
 
         private List<Expression> ListOf(params Expression[] args)
@@ -63,7 +65,6 @@ namespace Spark.Engine.Search
             {
                 // TODO: How to handle composite SearchParameter type
                 //if (element is Sequence.VariantComponent) return result;
-
                 List<Expression> expressions = ToExpressions((dynamic)element);
                 if (expressions != null)
                 {
@@ -203,6 +204,15 @@ namespace Spark.Engine.Search
 
             return ListOf(new StringValue(element.Value));
         }
+
+        private List<Expression> ToExpressions(Canonical element)
+        {
+            if (element == null || String.Empty.Equals(element.Value))
+                return null;
+
+            return ListOf(new StringValue(element.Value));
+        }
+
         private List<Expression> ToExpressions(Hl7.Fhir.Model.Date element)
         {
             if (element == null || String.Empty.Equals(element.Value))
@@ -377,7 +387,13 @@ namespace Spark.Engine.Search
             if (uri.IsAbsoluteUri)
             {
                 //This is a fully specified url, either internal or external. Don't change it.
-                value = new StringValue(uri.ToString());
+                var stringValue = new StringValue(uri.ToString());
+
+                // normalize reference value to be able to use normalized criteria for search.
+                // https://github.com/FirelyTeam/spark/issues/35 
+                value = _referenceNormalizationService != null
+                    ? _referenceNormalizationService.GetNormalizedReferenceValue(stringValue, null)
+                    : stringValue;
             }
             else if (uri.ToString().StartsWith("#"))
             {

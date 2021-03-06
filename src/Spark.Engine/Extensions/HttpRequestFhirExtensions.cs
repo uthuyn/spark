@@ -142,6 +142,7 @@ namespace Spark.Engine.Extensions
             var ub = new UriBuilder(request.GetRequestUri());
             // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
             return ub.Path.Contains("Binary")
+                && !ub.Path.EndsWith("_search")
                 && !HttpRequestExtensions.IsContentTypeHeaderFhirMediaType(request.ContentType)
                 && (request.Method == "POST" || request.Method == "PUT");
         }
@@ -247,14 +248,7 @@ namespace Spark.Engine.Extensions
 
         public static List<Tuple<string, string>> TupledParameters(this HttpRequestMessage request)
         {
-            var list = new List<Tuple<string, string>>();
-
-            NameValueCollection queryNameValuePairs = request.RequestUri.ParseQueryString();
-            foreach (var currentKey in queryNameValuePairs.AllKeys)
-            {
-                list.Add(new Tuple<string, string>(currentKey, queryNameValuePairs[currentKey]));
-            }
-            return list;
+            return UriParamList.FromQueryString(request.RequestUri.Query);
         }
 
         private static string GetValue(this HttpRequestMessage request, string key)
@@ -370,7 +364,8 @@ namespace Spark.Engine.Extensions
         {
             var ub = new UriBuilder(request.RequestUri);
             // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
-            return ub.Path.Contains("Binary") 
+            return ub.Path.Contains("Binary")
+                && !ub.Path.EndsWith("_search")
                 && !request.Content.IsContentTypeHeaderFhirMediaType()
                 && (request.Method == HttpMethod.Post || request.Method == HttpMethod.Put);
         }
